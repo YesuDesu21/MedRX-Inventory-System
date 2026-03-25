@@ -8,10 +8,6 @@ from src.ui.settings import Settings
 
 class HomeView:
 
-    
-
-    # Main containers below
-
     def header(self):
         header_frame = tk.Frame(self.root, bg='#529133', height=60)
         header_frame.pack(fill=tk.BOTH, padx=0, pady=0)

@@ -1,2 +1,5 @@
 PIL
 watchdog
+mysql-connector-python
+gspread
+google-auth
