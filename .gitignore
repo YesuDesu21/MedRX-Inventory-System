@@ -4,3 +4,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+get_service_email.py
+
+test_sheets.py

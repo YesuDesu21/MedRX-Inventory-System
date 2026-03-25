@@ -1,5 +1,5 @@
 import tkinter.ttk as ttk
-from src.database_manager import DatabaseManager
+from src.utils.database_manager import DatabaseManager
 
 class Transaction:
     def __init__(self, parent):

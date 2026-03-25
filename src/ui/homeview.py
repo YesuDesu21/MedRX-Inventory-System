@@ -3,6 +3,7 @@ from PIL import ImageTk, Image, ImageDraw
 
 from src.ui.dashboard import Dashboard
 from src.ui.inventory import Inventory
+from src.ui.transaction import Transaction
 from src.ui.logs import Logs
 from src.ui.settings import Settings
 
@@ -71,6 +72,10 @@ class HomeView:
         logs = Logs(self.main_container)
         return logs
 
+    def create_transactions_view(self):
+        transaction = Transaction(self.main_container)
+        return transaction
+
     def create_settings_view(self):
         settings = Settings(self.main_container)
         return settings
@@ -86,6 +91,8 @@ class HomeView:
                 self.current_view = self.create_dashboard_view()
             case "Inventory":
                 self.current_view = self.create_inventory_view()
+            case 'Transactions':
+                self.current_view = self.create_transactions_view()
             case "Logs":
                 self.current_view = self.create_logs_view()
             case "Settings":
@@ -98,6 +105,7 @@ class HomeView:
         nav_items =[
             ("Dashboard", lambda: self.switch_view("dashboard")),
             ("Inventory", lambda: self.switch_view("Inventory")),
+            ("Transactions", lambda: self.switch_view("Transactions")),
             ("Logs", lambda: self.switch_view("Logs")),
             ("Settings", lambda: self.switch_view("Settings")),
         ]
