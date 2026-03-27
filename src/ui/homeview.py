@@ -108,6 +108,7 @@ class HomeView:
             ("Transactions", lambda: self.switch_view("Transactions")),
             ("Logs", lambda: self.switch_view("Logs")),
             ("Settings", lambda: self.switch_view("Settings")),
+            ("Logout", lambda: self.switch_view("Logout"))
         ]
 
         for text, command in nav_items:

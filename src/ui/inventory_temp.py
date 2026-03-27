@@ -189,57 +189,79 @@ class Inventory:
         # Center the dialog on screen
         self.center_screen(dialog)
         
-        # Get next available ID (auto fills deleted IDs)
+        # Get available IDs
+        available_ids = self.db_manager.get_available_ids()
         next_id = self.db_manager.get_next_available_id()
         
         # Input fields
         dialog.columnconfigure(1, weight=1)
         
+        # ID field
+        tk.Label(dialog, text="ID:", bg='white').grid(row=0, column=0, padx=10, pady=8, sticky='w')
+        id_frame = tk.Frame(dialog, bg='white')
+        id_frame.grid(row=0, column=1, sticky='ew', padx=10, pady=8)
+        
+        self.id_var = tk.StringVar(value=str(next_id))
+        id_entry = tk.Entry(id_frame, textvariable=self.id_var, width=10)
+        id_entry.pack(side=tk.LEFT)
+        
+        if available_ids:
+            available_text = f"Available: {', '.join(map(str, available_ids[:5]))}"
+            if len(available_ids) > 5:
+                available_text += f" (+{len(available_ids)-5} more)"
+            tk.Label(id_frame, text=available_text, bg='white', fg='#666', font=('Arial', 8)).pack(side=tk.LEFT, padx=(10, 0))
+        
         # Product Name field
-        tk.Label(dialog, text="Product Name:", bg='white').grid(row=0, column=0, padx=10, pady=8, sticky='w')
+        tk.Label(dialog, text="Product Name:", bg='white').grid(row=1, column=0, padx=10, pady=8, sticky='w')
         name_entry = tk.Entry(dialog, width=20)
-        name_entry.grid(row=0, column=1, sticky='ew', padx=10, pady=8)
+        name_entry.grid(row=1, column=1, sticky='ew', padx=10, pady=8)
         
         # Product Type field
-        tk.Label(dialog, text="Product Type:", bg='white').grid(row=1, column=0, padx=10, pady=8, sticky='w')
+        tk.Label(dialog, text="Product Type:", bg='white').grid(row=2, column=0, padx=10, pady=8, sticky='w')
         product_type_var = tk.StringVar(value="medicine")
         product_type_frame = tk.Frame(dialog, bg='white')
-        product_type_frame.grid(row=1, column=1, sticky='ew', padx=10, pady=8)
+        product_type_frame.grid(row=2, column=1, sticky='ew', padx=10, pady=8)
         
-        product_type_menu = tk.OptionMenu(product_type_frame, product_type_var, "medicine", "supplies")
+        product_type_menu = tk.OptionMenu(product_type_frame, product_type_var, "medicine", "equipment", "supplies")
         product_type_menu.pack(side=tk.LEFT)
         product_type_menu.bind('<Configure>', lambda e: self.update_medicine_type_options(medicine_type_frame, product_type_var.get()))
         
         # Medicine Type field (initially for medicine)
         self.medicine_type_var = tk.StringVar(value="branded")
         medicine_type_frame = tk.Frame(dialog, bg='white')
-        medicine_type_frame.grid(row=2, column=1, sticky='ew', padx=10, pady=8)
+        medicine_type_frame.grid(row=3, column=1, sticky='ew', padx=10, pady=8)
         
-        tk.Label(dialog, text="Medicine Type:", bg='white').grid(row=2, column=0, padx=10, pady=8, sticky='w')
+        tk.Label(dialog, text="Medicine Type:", bg='white').grid(row=3, column=0, padx=10, pady=8, sticky='w')
         self.medicine_type_menu = tk.OptionMenu(medicine_type_frame, self.medicine_type_var, "branded", "unbranded")
         self.medicine_type_menu.pack(side=tk.LEFT)
         
         # Quantity field
-        tk.Label(dialog, text="Quantity:", bg='white').grid(row=3, column=0, padx=10, pady=8, sticky='w')
+        tk.Label(dialog, text="Quantity:", bg='white').grid(row=4, column=0, padx=10, pady=8, sticky='w')
         qty_entry = tk.Entry(dialog, width=20)
-        qty_entry.grid(row=3, column=1, sticky='ew', padx=10, pady=8)
+        qty_entry.grid(row=4, column=1, sticky='ew', padx=10, pady=8)
         
         # Unit Cost field
-        tk.Label(dialog, text="Unit Cost:", bg='white').grid(row=4, column=0, padx=10, pady=8, sticky='w')
+        tk.Label(dialog, text="Unit Cost:", bg='white').grid(row=5, column=0, padx=10, pady=8, sticky='w')
         unit_cost_entry = tk.Entry(dialog, width=20)
-        unit_cost_entry.grid(row=4, column=1, sticky='ew', padx=10, pady=8)
+        unit_cost_entry.grid(row=5, column=1, sticky='ew', padx=10, pady=8)
         
         # Price field
-        tk.Label(dialog, text="Price:", bg='white').grid(row=5, column=0, padx=10, pady=8, sticky='w')
+        tk.Label(dialog, text="Price:", bg='white').grid(row=6, column=0, padx=10, pady=8, sticky='w')
         price_entry = tk.Entry(dialog, width=20)
-        price_entry.grid(row=5, column=1, sticky='ew', padx=10, pady=8)
+        price_entry.grid(row=6, column=1, sticky='ew', padx=10, pady=8)
         
         # Expiration Date field
-        tk.Label(dialog, text="Expiration Date:", bg='white').grid(row=6, column=0, padx=10, pady=8, sticky='w')
+        tk.Label(dialog, text="Expiration Date:", bg='white').grid(row=7, column=0, padx=10, pady=8, sticky='w')
         exp_date_entry = tk.Entry(dialog, width=20)
-        exp_date_entry.grid(row=6, column=1, sticky='ew', padx=10, pady=8)
+        exp_date_entry.grid(row=7, column=1, sticky='ew', padx=10, pady=8)
         
         def save_item():
+            try:
+                product_id = int(self.id_var.get().strip())
+            except ValueError:
+                messagebox.showerror("Error", "ID must be a number")
+                return
+                
             name = name_entry.get().strip()
             product_type = product_type_var.get()
             medicine_type = self.medicine_type_var.get() if product_type.lower() == 'medicine' else 'N/A'
@@ -250,7 +272,13 @@ class Inventory:
             
             if name and qty and unit_cost and price and exp_date:
                 try:
-                    self.db_manager.add_product(name, product_type, int(qty), float(unit_cost), float(price), medicine_type, exp_date)
+                    # Check if ID already exists
+                    existing_ids = [row[0] for row in self.db_manager.get_inventory()]
+                    if product_id in existing_ids:
+                        messagebox.showerror("Error", f"ID {product_id} already exists. Please use a different ID.")
+                        return
+                    
+                    self.db_manager.add_product_with_id(product_id, name, product_type, int(qty), float(unit_cost), float(price), medicine_type, exp_date)
                     self.retrieve_inventory()
                     dialog.destroy()
                 except ValueError:
@@ -258,9 +286,27 @@ class Inventory:
             else:
                 messagebox.showerror("Error", "All fields are required")
         
+        def update_medicine_type_options(frame, product_type):
+            """Update medicine type options based on product type"""
+            # Clear existing widgets
+            for widget in frame.winfo_children():
+                widget.destroy()
+            
+            if product_type.lower() == 'medicine':
+                self.medicine_type_var = tk.StringVar(value="branded")
+                medicine_menu = tk.OptionMenu(frame, self.medicine_type_var, "branded", "unbranded")
+                medicine_menu.pack(side=tk.LEFT)
+            else:
+                # For non-medicine products, show N/A label
+                na_label = tk.Label(frame, text="N/A", bg='white', fg='#666')
+                na_label.pack(side=tk.LEFT)
+        
+        # Initialize medicine type options based on default product type
+        update_medicine_type_options(medicine_type_frame, product_type_var.get())
+        
         # Buttons
         button_frame = tk.Frame(dialog, bg='white')
-        button_frame.grid(row=7, column=0, columnspan=2, pady=15, sticky='ew')
+        button_frame.grid(row=8, column=0, columnspan=2, pady=15, sticky='ew')
         
         button_frame.columnconfigure(0, weight=1)
         button_frame.columnconfigure(1, weight=1)
@@ -270,18 +316,18 @@ class Inventory:
 
     def update_medicine_type_options(self, frame, product_type):
         """Update medicine type options based on product type"""
-        # Clear existing widgets
-        for widget in frame.winfo_children():
-            widget.destroy()
-        
-        if product_type.lower() == 'medicine':
-            self.medicine_type_var = tk.StringVar(value="branded")
-            medicine_menu = tk.OptionMenu(frame, self.medicine_type_var, "branded", "unbranded")
-            medicine_menu.pack(side=tk.LEFT)
-        else:
-            # For non-medicine products, show N/A label
-            na_label = tk.Label(frame, text="N/A", bg='white', fg='#666')
-            na_label.pack(side=tk.LEFT)
+            # Clear existing widgets
+            for widget in frame.winfo_children():
+                widget.destroy()
+            
+            if product_type.lower() == 'medicine':
+                self.medicine_type_var = tk.StringVar(value="branded")
+                medicine_menu = tk.OptionMenu(frame, self.medicine_type_var, "branded", "unbranded")
+                medicine_menu.pack(side=tk.LEFT)
+            else:
+                # For non-medicine products, show N/A label
+                na_label = tk.Label(frame, text="N/A", bg='white', fg='#666')
+                na_label.pack(side=tk.LEFT)
 
     def update_item(self):
         selected_item = self.tree.selection()
@@ -320,11 +366,11 @@ class Inventory:
         
         # Product Type field
         tk.Label(dialog, text="Product Type:", bg='white').grid(row=1, column=0, padx=10, pady=8, sticky='w')
-        product_type_var = tk.StringVar(value=current_product_type if current_product_type in ['medicine', 'supplies'] else 'medicine')
+        product_type_var = tk.StringVar(value=current_product_type)
         product_type_frame = tk.Frame(dialog, bg='white')
         product_type_frame.grid(row=1, column=1, sticky='ew', padx=10, pady=8)
         
-        product_type_menu = tk.OptionMenu(product_type_frame, product_type_var, "medicine", "supplies")
+        product_type_menu = tk.OptionMenu(product_type_frame, product_type_var, "medicine", "equipment", "supplies")
         product_type_menu.pack(side=tk.LEFT)
         product_type_menu.bind('<Configure>', lambda e: self.update_medicine_type_options(medicine_type_frame, product_type_var.get()))
         

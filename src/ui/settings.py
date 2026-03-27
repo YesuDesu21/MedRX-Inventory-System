@@ -57,14 +57,6 @@ class Settings:
         )
         sheet_link_label.grid(row=4, column=0, sticky='w', padx=10, pady=10)
 
-        sheet_id_label = tk.Label(
-            self.setting_frame,
-            text="Sheet ID",
-            font=('Arial', 12),
-            bg='white',
-            fg='#2E531D'
-        )
-        sheet_id_label.grid(row=5, column=0, sticky='w', padx=10, pady=10)
 
         #input
         username_entry = tk.Entry(
@@ -94,11 +86,20 @@ class Settings:
             width=30
         )
         sheet_link_entry.grid(row=4, column=1, sticky='ew', padx=10, pady=10)
-        
-        sheet_id_entry = tk.Entry(
-            self.setting_frame,
-            font=('Arial', 12),
-            width=30
-        )
-        sheet_id_entry.grid(row=5, column=1, sticky='ew', padx=10, pady=10)
 
+        save_button = tk.Button(
+            self.setting_frame,
+            text="Save",
+            command=self.save_settings,
+            bg='#529133',
+            fg='white',
+            font=('Arial', 10),
+            padx=20,
+            pady=5
+        )
+        save_button.grid(row=5, column=1, sticky='e', padx=10, pady=10)
+
+    def save_settings(self):
+        """Save settings to file or database"""
+        # TODO: Implement settings save functionality
+        print("Settings saved (placeholder)")
