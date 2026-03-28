@@ -44,21 +44,23 @@ class SyncManager:
             records = sheet.get_all_records()
             
             if not records:
-                print("⚠️ The sheet is empty. Nothing to import.")
+                print("The sheet is empty. Nothing to import.")
                 return False
 
-            # 3. Clear local items and replace with Cloud items
+            # 3. Clear local products and replace with Cloud items
             # (Warning: This overwrites local data!)
-            self.db.cursor.execute("DELETE FROM items")
+            self.db.cursor.execute("DELETE FROM products")
             
             for row in records:
-                # Map the GSheet columns to your SQLite columns
-                self.db.add_item(
-                    name=row.get('Item Name') or row.get('Name'),
-                    qty=row.get('Quantity') or row.get('Qty'),
-                    capital=row.get('Capital (Puhunan)') or 0,
-                    price=row.get('Price (Benta)') or 0,
-                    expiry=row.get('Expiration') or ""
+                # Map the GSheet columns to your SQLite columns - updated to match actual headers
+                self.db.add_product(
+                    product_name=row.get('Product Name') or row.get('Item Name') or row.get('Name'),
+                    product_type=row.get('Product Type') or row.get('Item Type') or 'supplies',
+                    quantity=row.get('Quantity') or row.get('Qty') or 0,
+                    unit_cost=row.get('Unit Cost') or row.get('Capital (Puhuna Price (Benta)') or row.get('Capital (Puhunan)') or 0,
+                    price=row.get('Price') or row.get('Price (Benta)') or 0,
+                    medicine_type=row.get('Medicine Type') or 'N/A',
+                    expiration_date=row.get('Expiration Date') or row.get('Expiration') or ""
                 )
             
             print(f"Successfully imported {len(records)} items from the Cloud!")
@@ -87,13 +89,13 @@ class SyncManager:
             has_headers = all_data and len(all_data) > 0 and "ID" in str(all_data[0])
             
             if not has_headers:
-                # Sheet is empty or has no headers - add them
-                headers = ["ID", "Item Name", "Quantity", "Capital (Puhunan)", "Price (Benta)", "Expiration", "Date Added", "Last Updated"]
+                # Sheet is empty or has no headers - add them matching database column order
+                headers = ["ID", "Product Name", "Product Type", "Quantity", "Unit Cost", "Price", "Medicine Type", "Expiration Date", "Date Added", "Last Updated"]
                 self.sheet.append_row(headers)
                 print("Added headers to Google Sheet")
             else:
                 # Clear only data rows, preserve headers
-                self.sheet.batch_clear(["A2:H"])
+                self.sheet.batch_clear(["A2:J"])
             
             for i in range(0, len(inventory_data), 100):  # 100 rows at a time
                 self.sheet.append_rows(inventory_data[i:i+100])

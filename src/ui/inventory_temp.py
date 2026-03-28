@@ -316,18 +316,18 @@ class Inventory:
 
     def update_medicine_type_options(self, frame, product_type):
         """Update medicine type options based on product type"""
-            # Clear existing widgets
-            for widget in frame.winfo_children():
-                widget.destroy()
-            
-            if product_type.lower() == 'medicine':
-                self.medicine_type_var = tk.StringVar(value="branded")
-                medicine_menu = tk.OptionMenu(frame, self.medicine_type_var, "branded", "unbranded")
-                medicine_menu.pack(side=tk.LEFT)
-            else:
-                # For non-medicine products, show N/A label
-                na_label = tk.Label(frame, text="N/A", bg='white', fg='#666')
-                na_label.pack(side=tk.LEFT)
+        # Clear existing widgets
+        for widget in frame.winfo_children():
+            widget.destroy()
+        
+        if product_type.lower() == 'medicine':
+            self.medicine_type_var = tk.StringVar(value="branded")
+            medicine_menu = tk.OptionMenu(frame, self.medicine_type_var, "branded", "unbranded")
+            medicine_menu.pack(side=tk.LEFT)
+        else:
+            # For non-medicine products, show N/A label
+            na_label = tk.Label(frame, text="N/A", bg='white', fg='#666')
+            na_label.pack(side=tk.LEFT)
 
     def update_item(self):
         selected_item = self.tree.selection()
