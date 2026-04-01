@@ -12,13 +12,30 @@ class Transaction:
         self.create_transaction_ui()
 
     def center_screen(self, dialog):
-        """Center the dialog on the screen"""
+        """Center the dialog on the main window"""
         dialog.update_idletasks()
-        width = dialog.winfo_width()
-        height = dialog.winfo_height()
-        x = (dialog.winfo_screenwidth() // 2) - (width // 2)
-        y = (dialog.winfo_screenheight() // 2) - (height // 2)
-        dialog.geometry(f'{width}x{height}+{x}+{y}')
+        dialog.update()
+        
+        # Get dialog dimensions
+        dialog_width = dialog.winfo_width()
+        dialog_height = dialog.winfo_height()
+        
+        # Get the root window (main window) - need to traverse up the hierarchy
+        parent = self.parent
+        while parent.master:  # Traverse up to get the root window
+            parent = parent.master
+        
+        # Get main window position and dimensions
+        parent_x = parent.winfo_x()
+        parent_y = parent.winfo_y()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+        
+        # Calculate center relative to main window
+        x = parent_x + (parent_width // 2) - (dialog_width // 2)
+        y = parent_y + (parent_height // 2) - (dialog_height // 2)
+        
+        dialog.geometry(f'{dialog_width}x{dialog_height}+{x}+{y}')
 
     def create_transaction_ui(self):
         # Main frame
@@ -35,7 +52,7 @@ class Transaction:
         
         ctk.CTkLabel(search_frame, text="Search:", font=ctk.CTkFont(size=11)).pack(side='left', padx=(0, 5))
         self.search_var = ctk.StringVar()
-        self.search_entry = ctk.CTkEntry(search_frame, textvariable=self.search_var, width=200, font=ctk.CTkFont(size=11))
+        self.search_entry = ctk.CTkEntry(search_frame, textvariable=self.search_var, width=200, font=ctk.CTkFont(size=11), text_color="white")
         self.search_entry.pack(side='left', padx=(0, 10))
         self.search_entry.bind('<KeyRelease>', self.filter_transactions)
         
@@ -48,19 +65,6 @@ class Transaction:
         self.sort_by_var = ctk.StringVar(value=self.sort_by_options[0])
         self.sort_by_option_menu = ctk.CTkOptionMenu(sort_frame, variable=self.sort_by_var, values=self.sort_by_options, font=ctk.CTkFont(size=11), command=self.filter_transactions)
         self.sort_by_option_menu.pack(side='left')
-        
-        date_frame = ctk.CTkFrame(search_frame)
-        date_frame.pack(side='left', padx=(0, 10))
-        
-        ctk.CTkLabel(date_frame, text="From:", font=ctk.CTkFont(size=11)).pack(side='left', padx=(0, 5))
-        self.date_from_var = ctk.StringVar()
-        self.date_from_entry = ctk.CTkEntry(date_frame, textvariable=self.date_from_var, width=100, font=ctk.CTkFont(size=11))
-        self.date_from_entry.pack(side='left', padx=(0, 5))
-        
-        ctk.CTkLabel(date_frame, text="To:", font=ctk.CTkFont(size=11)).pack(side='left', padx=(0, 5))
-        self.date_to_var = ctk.StringVar()
-        self.date_to_entry = ctk.CTkEntry(date_frame, textvariable=self.date_to_var, width=100, font=ctk.CTkFont(size=11))
-        self.date_to_entry.pack(side='left')
         
         # Buttons
         button_frame = ctk.CTkFrame(search_frame)
@@ -265,7 +269,7 @@ class AddTransactionModal:
         
         self.window = ctk.CTkToplevel(parent)
         self.window.title("Add Transaction")
-        self.window.geometry("800x600")
+        self.window.geometry("650x500")
         self.window.transient(parent)
         self.window.grab_set()
         
@@ -278,94 +282,106 @@ class AddTransactionModal:
         x = (self.window.winfo_screenwidth() // 2) - (width // 2)
         y = (self.window.winfo_screenheight() // 2) - (height // 2)
         self.window.geometry(f'{width}x{height}+{x}+{y}')
-        
+
     def create_ui(self):
         # Main container
-        main_frame = ttk.Frame(self.window)
-        main_frame.pack(fill='both', expand=True, padx=10, pady=10)
-        
+        main_frame = ctk.CTkFrame(self.window)
+        main_frame.pack(fill='both', expand=True, padx=15, pady=15)
+
         # Product search section
-        search_frame = ttk.LabelFrame(main_frame, text="Search Products")
-        search_frame.pack(fill='x', pady=(0, 10))
-        
-        ttk.Label(search_frame, text="Search:").pack(side='left', padx=(10, 5))
+        search_frame = ctk.CTkFrame(main_frame)
+        search_frame.pack(fill='x', pady=(0, 15))
+
+        search_label = ctk.CTkLabel(search_frame, text="Search Products", font=ctk.CTkFont(size=14, weight="bold"))
+        search_label.pack(anchor='w', padx=15, pady=(10, 5))
+
+        search_input_frame = ctk.CTkFrame(search_frame)
+        search_input_frame.pack(fill='x', padx=15, pady=(0, 10))
+
+        ctk.CTkLabel(search_input_frame, text="Search:", font=ctk.CTkFont(size=12)).pack(side='left', padx=(0, 5))
         self.product_search_var = tk.StringVar()
-        self.product_search_entry = ctk.CTkEntry(search_frame, textvariable=self.product_search_var, width=200)
+        self.product_search_entry = ctk.CTkEntry(search_input_frame, textvariable=self.product_search_var, width=250, font=ctk.CTkFont(size=12), height=32)
         self.product_search_entry.pack(side='left', padx=(0, 10))
         self.product_search_entry.bind('<KeyRelease>', self.search_products)
-        
+
         # Products list
-        products_frame = ttk.LabelFrame(main_frame, text="Available Products")
-        products_frame.pack(fill='both', expand=True, pady=(0, 10))
-        
+        products_frame = ctk.CTkFrame(main_frame)
+        products_frame.pack(fill='both', expand=True, pady=(0, 15))
+
+        products_label = ctk.CTkLabel(products_frame, text="Available Products", font=ctk.CTkFont(size=14, weight="bold"))
+        products_label.pack(anchor='w', padx=15, pady=(10, 5))
+
         # Products treeview
         product_columns = ('ID', 'Name', 'Type', 'Available Qty', 'Price')
         self.products_tree = ttk.Treeview(products_frame, columns=product_columns, show='headings', height=8)
-        
+
         for col in product_columns:
             self.products_tree.heading(col, text=col)
-        
+
         self.products_tree.column('ID', width=50)
         self.products_tree.column('Name', width=200)
         self.products_tree.column('Type', width=100)
         self.products_tree.column('Available Qty', width=100)
         self.products_tree.column('Price', width=80)
-        
+
         product_scrollbar = ttk.Scrollbar(products_frame, orient='vertical', command=self.products_tree.yview)
         self.products_tree.configure(yscrollcommand=product_scrollbar.set)
-        
+
         self.products_tree.pack(side='left', fill='both', expand=True, padx=(10, 0), pady=10)
         product_scrollbar.pack(side='right', fill='y', padx=(0, 10), pady=10)
-        
+
         # Bind double-click to add product
         self.products_tree.bind('<Double-1>', self.add_product_to_transaction)
-        
+
         # Selected items section
-        selected_frame = ttk.LabelFrame(main_frame, text="Transaction Items")
-        selected_frame.pack(fill='both', expand=True, pady=(0, 10))
-        
+        selected_frame = ctk.CTkFrame(main_frame)
+        selected_frame.pack(fill='both', expand=True, pady=(0, 15))
+
+        selected_label = ctk.CTkLabel(selected_frame, text="Transaction Items", font=ctk.CTkFont(size=14, weight="bold"))
+        selected_label.pack(anchor='w', padx=15, pady=(10, 5))
+
         # Selected items treeview
         selected_columns = ('ID', 'Name', 'Quantity', 'Unit Price', 'Total')
         self.selected_tree = ttk.Treeview(selected_frame, columns=selected_columns, show='headings', height=6)
-        
+
         for col in selected_columns:
             self.selected_tree.heading(col, text=col)
-        
+
         self.selected_tree.column('ID', width=50)
         self.selected_tree.column('Name', width=200)
         self.selected_tree.column('Quantity', width=80)
         self.selected_tree.column('Unit Price', width=80)
         self.selected_tree.column('Total', width=80)
-        
+
         selected_scrollbar = ttk.Scrollbar(selected_frame, orient='vertical', command=self.selected_tree.yview)
         self.selected_tree.configure(yscrollcommand=selected_scrollbar.set)
-        
+
         self.selected_tree.pack(side='left', fill='both', expand=True, padx=(10, 0), pady=10)
         selected_scrollbar.pack(side='right', fill='y', padx=(0, 10), pady=10)
-        
+
         # Buttons for selected items
-        selected_buttons_frame = ttk.Frame(selected_frame)
-        selected_buttons_frame.pack(fill='x', padx=10, pady=5)
-        
-        ttk.Button(selected_buttons_frame, text="Remove Item", command=self.remove_selected_item).pack(side='left', padx=5)
-        ttk.Button(selected_buttons_frame, text="Edit Quantity", command=self.edit_item_quantity).pack(side='left', padx=5)
-        
+        selected_buttons_frame = ctk.CTkFrame(selected_frame)
+        selected_buttons_frame.pack(fill='x', padx=15, pady=10)
+
+        ctk.CTkButton(selected_buttons_frame, text="Remove Item", command=self.remove_selected_item, font=ctk.CTkFont(size=12), width=120, height=32).pack(side='left', padx=5)
+        ctk.CTkButton(selected_buttons_frame, text="Edit Quantity", command=self.edit_item_quantity, font=ctk.CTkFont(size=12), width=120, height=32).pack(side='left', padx=5)
+
         # Total and action buttons
-        bottom_frame = ttk.Frame(main_frame)
-        bottom_frame.pack(fill='x', pady=(10, 0))
-        
-        self.total_label = ttk.Label(bottom_frame, text="Total: ₱0.00", font=('Arial', 12, 'bold'))
-        self.total_label.pack(side='left', padx=10)
-        
-        button_frame = ttk.Frame(bottom_frame)
-        button_frame.pack(side='right', padx=10)
-        
-        cancel_btn = ttk.Button(button_frame, text="Cancel", command=self.window.destroy)
-        cancel_btn.pack(side='left', padx=(0, 5))
-        
-        save_btn = ttk.Button(button_frame, text="Save Transaction", command=self.save_transaction)
-        save_btn.pack(side='left', padx=(5, 0))
-        
+        bottom_frame = ctk.CTkFrame(main_frame)
+        bottom_frame.pack(fill='x', pady=(15, 0))
+
+        self.total_label = ctk.CTkLabel(bottom_frame, text="Total: ₱0.00", font=ctk.CTkFont(size=16, weight="bold"))
+        self.total_label.pack(side='left', padx=15, pady=10)
+
+        button_frame = ctk.CTkFrame(bottom_frame)
+        button_frame.pack(side='right', padx=15, pady=10)
+
+        cancel_btn = ctk.CTkButton(button_frame, text="Cancel", command=self.window.destroy, font=ctk.CTkFont(size=12), width=120, height=35)
+        cancel_btn.pack(side='left', padx=(0, 10))
+
+        save_btn = ctk.CTkButton(button_frame, text="Save Transaction", command=self.save_transaction, font=ctk.CTkFont(size=12), width=140, height=35)
+        save_btn.pack(side='left', padx=(10, 0))
+
         # Load initial products
         self.search_products()
 
@@ -616,7 +632,7 @@ class TransactionDetailsModal:
             transaction_item_id = item[0]  # Transaction item ID
             item_id = item[1]  # Product ID
             quantity = item[2]  # Quantity bought
-            unit_price = item[3]  # Unit price
+            unit_price = float(item[3]) if item[3] else 0.0  # Unit price
             item_name = item[4]  # Product name
             item_total = quantity * unit_price
             
@@ -683,47 +699,64 @@ class QuantityDialog:
         
         self.dialog = ctk.CTkToplevel(parent)
         self.dialog.title(f"Enter Quantity - {item_name}")
-        self.dialog.geometry("320x180")  # Increased height to ensure buttons are visible
+        self.dialog.geometry("320x150")  # Increased height to ensure buttons are visible
         self.dialog.resizable(False, False)  # Make modal non-resizable
         self.dialog.transient(parent)
         self.dialog.grab_set()
         
         # Main frame
-        main_frame = ttk.Frame(self.dialog)
+        main_frame = ctk.CTkFrame(self.dialog)
         main_frame.pack(fill='both', expand=True, padx=20, pady=20)
         
-        ttk.Label(main_frame, text=f"Item: {item_name}").pack(anchor='w', pady=(0, 10))
-        # ttk.Label(main_frame, text=f"Available: {max_quantity}").pack(anchor='w', pady=(0, 10))
+        ctk.CTkLabel(main_frame, text=f"Item: {item_name}", font=ctk.CTkFont(size=12)).pack(anchor='w', pady=(0, 10))
+        # ctk.CTkLabel(main_frame, text=f"Available: {max_quantity}", font=ctk.CTkFont(size=12)).pack(anchor='w', pady=(0, 10))
         
         # Quantity input
-        input_frame = ttk.Frame(main_frame)
+        input_frame = ctk.CTkFrame(main_frame)
         input_frame.pack(fill='x', pady=(0, 20))
         
-        ttk.Label(input_frame, text="Quantity:").pack(side='left')
+        ctk.CTkLabel(input_frame, text="Quantity:", font=ctk.CTkFont(size=12)).pack(side='left')
         self.quantity_var = tk.StringVar(value=str(current_quantity))
-        self.quantity_entry = ttk.Entry(input_frame, textvariable=self.quantity_var, width=10)
+        self.quantity_entry = ctk.CTkEntry(input_frame, textvariable=self.quantity_var, width=100, font=ctk.CTkFont(size=12), height=32)
         self.quantity_entry.pack(side='left', padx=(10, 0))
         self.quantity_entry.select_range(0, tk.END)
         self.quantity_entry.focus()
         
         # Buttons
-        button_frame = ttk.Frame(main_frame)
+        button_frame = ctk.CTkFrame(main_frame)
         button_frame.pack(fill='x', pady=(10, 0))
         
-        ttk.Button(button_frame, text="OK", command=self.ok_clicked).pack(side='right', padx=(5, 0))
-        ttk.Button(button_frame, text="Cancel", command=self.cancel_clicked).pack(side='right')
+        ctk.CTkButton(button_frame, text="OK", command=self.ok_clicked, font=ctk.CTkFont(size=12), width=80, height=32).pack(side='right', padx=(5, 0))
+        ctk.CTkButton(button_frame, text="Cancel", command=self.cancel_clicked, font=ctk.CTkFont(size=12), width=80, height=32).pack(side='right')
         
         # Bind Enter key
         self.dialog.bind('<Return>', lambda e: self.ok_clicked())
         self.dialog.bind('<Escape>', lambda e: self.cancel_clicked())
         
-        # Center the dialog on screen
+        # Center the dialog on main window
         self.dialog.update_idletasks()
-        width = self.dialog.winfo_width()
-        height = self.dialog.winfo_height()
-        x = (self.dialog.winfo_screenwidth() // 2) - (width // 2)
-        y = (self.dialog.winfo_screenheight() // 2) - (height // 2)
-        self.dialog.geometry(f'{width}x{height}+{x}+{y}')
+        self.dialog.update()
+        
+        # Get dialog dimensions
+        dialog_width = self.dialog.winfo_width()
+        dialog_height = self.dialog.winfo_height()
+        
+        # Get the root window - traverse up hierarchy from parent
+        parent = parent
+        while parent.master:  # Traverse up to get the root window
+            parent = parent.master
+        
+        # Get main window position and dimensions
+        parent_x = parent.winfo_x()
+        parent_y = parent.winfo_y()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+        
+        # Calculate center relative to main window
+        x = parent_x + (parent_width // 2) - (dialog_width // 2)
+        y = parent_y + (parent_height // 2) - (dialog_height // 2)
+        
+        self.dialog.geometry(f'{dialog_width}x{dialog_height}+{x}+{y}')
 
     def ok_clicked(self):
         """Handle OK button click"""

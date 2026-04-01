@@ -31,6 +31,13 @@ class DBInventoryManager:
 
     def update_inventory(self, product_name, quantity, unit_cost, price, expiration_date, product_type=None, medicine_type=None):
         try:
+
+            # Validate inputs
+            if not isinstance(product_name, str) or not product_name.strip():
+                raise ValueError("Product name must be a non-empty string")
+            if not isinstance(quantity, int) or quantity < 0:
+                raise ValueError("Quantity must be a non-negative integer")
+                
             # Handle medicine_type logic if provided
             if product_type and medicine_type:
                 if product_type.lower() == 'medicine':

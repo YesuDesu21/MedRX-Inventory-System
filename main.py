@@ -8,13 +8,12 @@ import customtkinter as ctk
 if __name__ == '__main__':
     light_mode = ['dark',"light"]
 
-
     ctk.set_appearance_mode(light_mode[0]) 
     # ctk.set_default_color_theme("assets/my_theme.json")
     
     root = ctk.CTk()
     root.title("MedRX Inventory System")
-    root.iconbitmap("assets/MedRx.ico")
+    root.iconbitmap("assets/MedRx.ico") 
 
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()

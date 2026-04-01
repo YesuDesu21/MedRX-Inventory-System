@@ -31,7 +31,7 @@ class HomeView:
         rounded_image.paste(resized_image, (0, 0))
         rounded_image.putalpha(mask)
         
-        self.logo = ImageTk.PhotoImage(rounded_image)
+        self.logo = ctk.CTkImage(rounded_image, size=(50, 50))
 
         self.logo_label = ctk.CTkLabel(header_frame, image=self.logo, text="")
         self.logo_label.grid(row=0, column=0, padx=20, pady=15)
