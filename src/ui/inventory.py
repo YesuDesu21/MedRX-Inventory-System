@@ -1,33 +1,31 @@
-import tkinter as tk
+import customtkinter as ctk
 import tkinter.ttk as ttk
-from src.utils.database_manager import DatabaseManager
+from src.utils.db_inventory_manager import DBInventoryManager
 from tkinter import messagebox
 
 class Inventory:
     def __init__(self, parent):
         self.parent = parent
-        self.db_manager = DatabaseManager()
+        self.db_manager = DBInventoryManager()
         self.create_widgets()
         self.retrieve_inventory()
 
     def create_widgets(self):
         # Main frame for inventory
-        self.inventory_frame = tk.Frame(self.parent, bg='white')
-        self.inventory_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self.inventory_frame = ctk.CTkFrame(self.parent)
+        self.inventory_frame.pack(fill=ctk.BOTH, expand=True, padx=10, pady=10)
         
         # Title
-        title_label = tk.Label(
+        title_label = ctk.CTkLabel(
             self.inventory_frame,
             text="Inventory Management",
-            font=('Arial', 16, 'bold'),
-            bg='white',
-            fg='#2E531D'
+            font=ctk.CTkFont(size=16, weight="bold")
         )
         title_label.pack(pady=(0, 20))
         
         # Create container for treeview and scrollbar
-        tree_container = tk.Frame(self.inventory_frame, bg='white')
-        tree_container.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        tree_container = ctk.CTkFrame(self.inventory_frame)
+        tree_container.pack(side=ctk.LEFT, fill=ctk.BOTH, expand=True)
         
         # Create Treeview for inventory grid inside container
         columns = ('ID', 'Product Name', 'Product Type', 'Quantity', 'Unit Cost', 'Price', 'Medicine Type', 'Expiration Date', 'Created Date', 'Updated Date')
@@ -53,78 +51,72 @@ class Inventory:
             self.tree.column(col, width=column_widths.get(col, 100), anchor='center')
         
         # Add scrollbar inside container
-        scrollbar = ttk.Scrollbar(tree_container, orient=tk.VERTICAL, command=self.tree.yview)
+        scrollbar = ttk.Scrollbar(tree_container, orient=ctk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)
         
         # Pack treeview and scrollbar in container
-        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.tree.pack(side=ctk.LEFT, fill=ctk.BOTH, expand=True)
+        scrollbar.pack(side=ctk.RIGHT, fill=ctk.Y)
         
         # Buttons frame
-        buttons_frame = tk.Frame(self.inventory_frame, bg='white')
-        buttons_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(10, 0))
+        buttons_frame = ctk.CTkFrame(self.inventory_frame)
+        buttons_frame.pack(side=ctk.RIGHT, fill=ctk.Y, padx=(10, 0))
         
         # Search bar
-        search_label = tk.Label(
+        search_label = ctk.CTkLabel(
             buttons_frame,
             text="Search:",
-            bg='white',
-            font=('Arial', 10, 'bold')
+            font=ctk.CTkFont(size=10, weight="bold")
         )
         search_label.pack(pady=(0, 5))
         
-        self.search_entry = tk.Entry(
+        self.search_entry = ctk.CTkEntry(
             buttons_frame,
-            font=('Arial', 10),
+            font=ctk.CTkFont(size=10),
             width=20
         )
-        self.search_entry.pack(fill=tk.X, pady=(0, 15))
+        self.search_entry.pack(fill=ctk.X, pady=(0, 15))
         self.search_entry.bind('<KeyRelease>', self.filter_inventory)
         
+        # Sort by dropdown
+        sort_frame = ctk.CTkFrame(buttons_frame)
+        sort_frame.pack(fill=ctk.X, pady=(0, 10))
+        
+        ctk.CTkLabel(sort_frame, text="Sort by:", font=ctk.CTkFont(size=10)).pack(side='left', padx=(0, 5))
+        self.sort_by_options = ["ID", "Product Name", "Product Type", "Quantity", "Unit Cost", "Price", "Medicine Type", "Expiration Date", "Created Date", "Updated Date"]
+        self.sort_by_var = ctk.StringVar(value=self.sort_by_options[0])
+        self.sort_by_option_menu = ctk.CTkOptionMenu(sort_frame, variable=self.sort_by_var, values=self.sort_by_options, font=ctk.CTkFont(size=10), command=self.filter_inventory)
+        self.sort_by_option_menu.pack(side='left', padx=(10, 0))
+        
         # Action buttons
-        tk.Button(
+        ctk.CTkButton(
             buttons_frame,
             text="Add New Item",
             command=self.add_new_stock,
-            bg='#529133',
-            fg='white',
-            font=('Arial', 10),
-            padx=20,
-            pady=5
-        ).pack(fill=tk.X, pady=(0, 10))
+            font=ctk.CTkFont(size=10)
+        ).pack(fill=ctk.X, pady=(0, 10))
         
-        tk.Button(
+        ctk.CTkButton(
             buttons_frame,
             text="Update Selected",
             command=self.update_item,
-            bg='#2E531D',
-            fg='white',
-            font=('Arial', 10),
-            padx=20,
-            pady=5
-        ).pack(fill=tk.X, pady=(0, 10))
+            font=ctk.CTkFont(size=10)
+        ).pack(fill=ctk.X, pady=(0, 10))
         
-        tk.Button(
+        ctk.CTkButton(
             buttons_frame,
             text="Delete Selected",
             command=self.delete_item,
-            bg='#d32f2f',
-            fg='white',
-            font=('Arial', 10),
-            padx=20,
-            pady=5
-        ).pack(fill=tk.X, pady=(0, 10))
+            font=ctk.CTkFont(size=10),
+            fg_color="red"
+        ).pack(fill=ctk.X, pady=(0, 10))
         
-        tk.Button(
+        ctk.CTkButton(
             buttons_frame,
             text="Refresh",
             command=self.retrieve_inventory,
-            bg='#1976d2',
-            fg='white',
-            font=('Arial', 10),
-            padx=20,
-            pady=5
-        ).pack(fill=tk.X)
+            font=ctk.CTkFont(size=10)
+        ).pack(fill=ctk.X)
 
     def center_screen(self, dialog):
         """Center the dialog on the screen"""
@@ -136,8 +128,9 @@ class Inventory:
         dialog.geometry(f'{width}x{height}+{x}+{y}')
 
     def filter_inventory(self, event=None):
-        """Filter inventory based on search term"""
+        """Filter and sort inventory based on search term and sort option"""
         search_term = self.search_entry.get().strip().lower()
+        sort_by = self.sort_by_var.get()
         
         # Clear existing data
         for item in self.tree.get_children():
@@ -153,11 +146,33 @@ class Inventory:
             if search_term == "" or search_term in str(row[1]).lower():
                 filtered_data.append(row)
         
-        # Insert filtered data into treeview
-        for row in filtered_data:
-            self.tree.insert('', tk.END, values=row)
+        # Sort data based on selected option
+        if sort_by == "ID":
+            filtered_data.sort(key=lambda x: x[0], reverse=False)
+        elif sort_by == "Product Name":
+            filtered_data.sort(key=lambda x: str(x[1]), reverse=False)
+        elif sort_by == "Product Type":
+            filtered_data.sort(key=lambda x: str(x[2]), reverse=False)
+        elif sort_by == "Quantity":
+            filtered_data.sort(key=lambda x: x[3] if x[3] is not None else 0, reverse=False)
+        elif sort_by == "Unit Cost":
+            filtered_data.sort(key=lambda x: x[4] if x[4] is not None else 0, reverse=False)
+        elif sort_by == "Price":
+            filtered_data.sort(key=lambda x: x[5] if x[5] is not None else 0, reverse=False)
+        elif sort_by == "Medicine Type":
+            filtered_data.sort(key=lambda x: str(x[6]), reverse=False)
+        elif sort_by == "Expiration Date":
+            filtered_data.sort(key=lambda x: x[7] if x[7] is not None else "", reverse=False)
+        elif sort_by == "Created Date":
+            filtered_data.sort(key=lambda x: x[8] if x[8] is not None else "", reverse=False)
+        elif sort_by == "Updated Date":
+            filtered_data.sort(key=lambda x: x[9] if x[9] is not None else "", reverse=False)
         
-        print(f"Found {len(filtered_data)} items matching '{search_term}'")
+        # Insert filtered and sorted data into treeview
+        for row in filtered_data:
+            self.tree.insert('', ctk.END, values=row)
+        
+        print(f"Found {len(filtered_data)} items matching '{search_term}', sorted by '{sort_by}'")
 
     def retrieve_inventory(self):
         """Retrieve and display all inventory items"""
@@ -170,7 +185,7 @@ class Inventory:
         
         # Insert data into treeview
         for row in data:
-            self.tree.insert('', tk.END, values=row)
+            self.tree.insert('', ctk.END, values=row)
         
         print(f"Loaded {len(data)} inventory items")
 

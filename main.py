@@ -1,8 +1,18 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from src.ui.homeview import HomeView
-import tkinter as tk
+import customtkinter as ctk
 
 if __name__ == '__main__':
-    root = tk.Tk()
+    light_mode = ['dark',"light"]
+
+
+    ctk.set_appearance_mode(light_mode[0]) 
+    # ctk.set_default_color_theme("assets/my_theme.json")
+    
+    root = ctk.CTk()
     root.title("MedRX Inventory System")
     root.iconbitmap("assets/MedRx.ico")
 

@@ -1,4 +1,4 @@
-import tkinter as tk
+import customtkinter as ctk
 from PIL import ImageTk, Image, ImageDraw
 
 from src.ui.dashboard import Dashboard
@@ -10,8 +10,8 @@ from src.ui.settings import Settings
 class HomeView:
 
     def header(self):
-        header_frame = tk.Frame(self.root, bg='#529133', height=60)
-        header_frame.pack(fill=tk.BOTH, padx=0, pady=0)
+        header_frame = ctk.CTkFrame(self.root, height=60, corner_radius=0)
+        header_frame.pack(fill=ctk.BOTH, padx=0, pady=0)
         header_frame.pack_propagate(False)
 
         #Allows the title to be centered and the name to be at the right side
@@ -33,32 +33,28 @@ class HomeView:
         
         self.logo = ImageTk.PhotoImage(rounded_image)
 
-        self.logo_label = tk.Label(header_frame, image=self.logo, bg='#529133')
+        self.logo_label = ctk.CTkLabel(header_frame, image=self.logo, text="")
         self.logo_label.grid(row=0, column=0, padx=20, pady=15)
         
         # Title
-        self.title_label = tk.Label(
+        self.title_label = ctk.CTkLabel(
             header_frame, 
             text="MedRX Inventory", 
-            font=('Arial', 20, 'bold'),
-            bg='#529133',
-            fg='white'
+            font=ctk.CTkFont(size=24, weight="bold")
         )
         self.title_label.grid(row=0, column=1, padx=20, pady=15, columnspan=2)
 
         # Name of user
-        self.user_label = tk.Label(
+        self.user_label = ctk.CTkLabel(
             header_frame,
             text="Felino E. Doria",
-            font=('Arial', 12),
-            bg='#529133',
-            fg='white'
+            font=ctk.CTkFont(size=16)
         )
         self.user_label.grid(row=0, column=3, padx=20, pady=15, sticky='e')
    
     def main_container(self):
-        self.main_container = tk.Frame(self.root, bg='white')
-        self.main_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        self.main_container = ctk.CTkFrame(self.root)
+        self.main_container.pack(fill=ctk.BOTH, expand=True, padx=20, pady=20)
 
     def create_dashboard_view(self):
         dashboard = Dashboard(self.main_container)
@@ -99,8 +95,9 @@ class HomeView:
                 self.current_view = self.create_settings_view()
 
     def sidebar(self):
-        sidebar_frame = tk.Frame(self.root, bg='#2E531D', width=200)
-        sidebar_frame.pack(fill=tk.Y, side=tk.LEFT)
+        sidebar_frame = ctk.CTkFrame(self.root, width=200, corner_radius=0)
+        sidebar_frame.pack(fill=ctk.Y, side=ctk.LEFT)
+        sidebar_frame.pack_propagate(False)
 
         nav_items =[
             ("Dashboard", lambda: self.switch_view("dashboard")),
@@ -112,21 +109,15 @@ class HomeView:
         ]
 
         for text, command in nav_items:
-            btn = tk.Button(
+            btn = ctk.CTkButton(
                 sidebar_frame,
                 text=text,
-                font=('Arial', 11),
-                bg='#2E531D',
-                fg='white',
-                relief=tk.FLAT,
+                font=ctk.CTkFont(size=14),
                 anchor='w',
-                padx=20,
-                pady=15,
+                height=45,
                 command=command
             )
-            btn.pack(fill=tk.X, padx=0, pady=0)
-            btn.bind('<Enter>', lambda e, b=btn: b.config(bg='#529133'))
-            btn.bind('<Leave>', lambda e, b=btn: b.config(bg='#2E531D'))
+            btn.pack(fill=ctk.X, padx=10, pady=5)
 
     
     def status_bar(self):

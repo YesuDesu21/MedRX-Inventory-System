@@ -7,10 +7,14 @@ from google.oauth2.service_account import Credentials
 
 load_dotenv()
 
+# Get project root directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 #SQLite connection
 def create_connection():
     try:
-        conn = sqlite3.connect("data/medrx_inventory.db")
+        db_path = os.path.join(PROJECT_ROOT, "data", "medrx_inventory.db")
+        conn = sqlite3.connect(db_path)
         return conn
     except sqlite3.Error as e:
         print(f"Database connection error: {e}")
@@ -24,8 +28,9 @@ def create_cursor(conn):
 #Google Sheets connection
 def sheets_connection():
     try:
+        creds_path = os.path.join(PROJECT_ROOT, 'credentials.json')
         creds = Credentials.from_service_account_file(
-            'credentials.json',
+            creds_path,
             scopes=['https://www.googleapis.com/auth/spreadsheets']
         )
         client = gspread.authorize(creds)

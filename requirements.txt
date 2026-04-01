@@ -3,3 +3,5 @@ watchdog
 mysql-connector-python
 gspread
 google-auth
+streamlit
+customtkinter
