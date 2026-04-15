@@ -12,7 +12,7 @@ class DBTransactionsManager:
 
         self.sync_manager = SyncManager(self)
 
-    def create_transaction(self, user_id, items):
+    def create_transaction(self, items):
         """
         Create a new transaction with multiple items
         items: list of dicts with keys: item_id, quantity_bought, unit_price
@@ -23,9 +23,9 @@ class DBTransactionsManager:
             
             # Create transaction record
             self.cursor.execute("""
-                INSERT INTO transactions (user_id, total_price, date_processed)
-                VALUES (?, ?, datetime('now', 'localtime'))
-            """, (user_id, total_price))
+                INSERT INTO transactions (total_price, date_processed)
+                VALUES (?, datetime('now', 'localtime'))
+            """, (total_price,))
             transaction_id = self.cursor.lastrowid
             
             # Add transaction items and update inventory
@@ -39,7 +39,7 @@ class DBTransactionsManager:
                 # Subtract from inventory
                 self.cursor.execute("""
                     UPDATE products SET quantity = quantity - ?, updated_date = datetime('now', 'localtime')
-                    WHERE item_id = ?
+                    WHERE product_id = ?
                 """, (item['quantity_bought'], item['item_id']))
             
             self.conn.commit()
@@ -55,7 +55,7 @@ class DBTransactionsManager:
         try:
             base_query = """
                 SELECT t.transaction_id, 
-                       p.item_name,
+                       p.product_name,
                        ti.quantity_bought,
                        ti.unit_price,
                        t.total_price, 
@@ -63,13 +63,13 @@ class DBTransactionsManager:
                        ti.transaction_item_id
                 FROM transactions t
                 LEFT JOIN transaction_items ti ON t.transaction_id = ti.transaction_id
-                LEFT JOIN products p ON ti.item_id = p.item_id
+                LEFT JOIN products p ON ti.item_id = p.product_id
                 WHERE 1=1
             """
             params = []
             
             if search_term:
-                base_query += " AND (t.transaction_id LIKE ? OR p.item_name LIKE ?)"
+                base_query += " AND (t.transaction_id LIKE ? OR p.product_name LIKE ?)"
                 params.extend([f"%{search_term}%", f"%{search_term}%"])
             
             if date_from:
@@ -93,9 +93,9 @@ class DBTransactionsManager:
         try:
             self.cursor.execute("""
                 SELECT ti.transaction_item_id, ti.item_id, ti.quantity_bought, ti.unit_price,
-                       p.item_name, p.product_type
+                       p.product_name, p.product_type
                 FROM transaction_items ti
-                JOIN products p ON ti.item_id = p.item_id
+                JOIN products p ON ti.item_id = p.product_id
                 WHERE ti.transaction_id = ?
             """, (transaction_id,))
             return self.cursor.fetchall()
@@ -132,7 +132,7 @@ class DBTransactionsManager:
             # Adjust inventory (add back old quantity, subtract new quantity)
             self.cursor.execute("""
                 UPDATE products SET quantity = quantity - ?, updated_date = datetime('now', 'localtime')
-                WHERE item_id = ?
+                WHERE product_id = ?
             """, (quantity_diff, item_id))
             
             # Recalculate transaction total
@@ -180,7 +180,7 @@ class DBTransactionsManager:
             # Restore inventory
             self.cursor.execute("""
                 UPDATE products SET quantity = quantity + ?, updated_date = datetime('now', 'localtime')
-                WHERE item_id = ?
+                WHERE product_id = ?
             """, (quantity, item_id))
             
             # Recalculate transaction total
@@ -206,19 +206,34 @@ class DBTransactionsManager:
         try:
             if search_term:
                 self.cursor.execute("""
-                    SELECT item_id, item_name, product_type, quantity, price, unit_cost, medicine_type, expiration_date
+                    SELECT product_id, product_name, product_type, quantity, price, unit_cost, medicine_type, expiration_date
                     FROM products
-                    WHERE quantity > 0 AND (item_name LIKE ? OR product_type LIKE ?)
-                    ORDER BY item_name
+                    WHERE quantity > 0 AND (product_name LIKE ? OR product_type LIKE ?)
+                    ORDER BY product_name
                 """, (f"%{search_term}%", f"%{search_term}%"))
             else:
                 self.cursor.execute("""
-                    SELECT item_id, item_name, product_type, quantity, price, unit_cost, medicine_type, expiration_date
+                    SELECT product_id, product_name, product_type, quantity, price, unit_cost, medicine_type, expiration_date
                     FROM products
                     WHERE quantity > 0
-                    ORDER BY item_name
+                    ORDER BY product_name
                 """)
             return self.cursor.fetchall()
         except Exception as e:
             print(f"Error searching products: {e}")
+            return []
+
+    # all bbelow are for processed transactions
+
+    def get_processed_transactions(self):
+        """Get all processed transactions"""
+        try:
+            self.cursor.execute("""
+                SELECT *
+                FROM transactions
+                ORDER BY date_processed DESC
+            """)
+            return self.cursor.fetchall()
+        except Exception as e:
+            print(f"Error getting processed transactions: {e}")
             return []

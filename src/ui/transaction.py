@@ -452,11 +452,12 @@ class AddTransactionModal:
         current_qty = item['values'][2]
         
         # Get available quantity from products
-        product = self.db_manager.get_product_by_id(item_id)
-        if product:
-            available_qty = product[3] + current_qty  # Add back current quantity to available
-        else:
-            available_qty = current_qty
+        product = self.db_manager.search_products_for_transaction()
+        available_qty = 0
+        for p in product:
+            if p[0] == item_id:
+                available_qty = p[3] + current_qty  # Add back current quantity to available
+                break
         
         quantity_dialog = QuantityDialog(self.window, item_name, available_qty, current_qty)
         self.window.wait_window(quantity_dialog.dialog)
@@ -501,8 +502,8 @@ class AddTransactionModal:
                     'unit_price': unit_price
                 })
             
-            # Create transaction (using user_id = 1 for now, you might want to get this from login)
-            transaction_id = self.db_manager.create_transaction(1, items)
+            # Create transaction
+            transaction_id = self.db_manager.create_transaction(items)
             
             if transaction_id:
                 messagebox.showinfo("Success", f"Transaction created successfully with ID: {transaction_id}")
