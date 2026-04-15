@@ -8,3 +8,6 @@ __pycache__/
 get_service_email.py
 
 test_sheets.py
+
+logs/
+*.log

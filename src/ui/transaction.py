@@ -4,12 +4,14 @@ import tkinter as tk
 from tkinter import messagebox
 from datetime import datetime
 from src.utils.db_transactions_manager import DBTransactionsManager
+from src.utils.logger import log_user_action, log_database_operation, log_error
 
 class Transaction:
     def __init__(self, parent):
         self.parent = parent
         self.db_manager = DBTransactionsManager()
         self.create_transaction_ui()
+        log_user_action("Opened Transactions", "Transactions")
 
     def center_screen(self, dialog):
         """Center the dialog on the main window"""
@@ -118,7 +120,7 @@ class Transaction:
         self.load_transactions()
 
     def load_transactions(self):
-        """Load transactions into the treeview"""
+        """Load transactions into treeview"""
         # Clear existing items
         for item in self.transaction_tree.get_children():
             self.transaction_tree.delete(item)
@@ -128,6 +130,7 @@ class Transaction:
         sort_by = self.sort_by_var.get()
         
         transactions = self.db_manager.get_transactions(search_term, None, None)
+        log_database_operation("Retrieved transaction data", "transactions", f"Loaded {len(transactions)} records")
         
         # Sort transactions based on selected option
         if sort_by == "Transaction ID":
@@ -185,6 +188,7 @@ class Transaction:
 
     def open_add_transaction_modal(self):
         """Open modal to add new transaction"""
+        log_user_action("Opened Add Transaction dialog", "Transactions")
         modal = AddTransactionModal(self.parent, self.db_manager, self.load_transactions)
 
     def view_transaction_details(self, event):

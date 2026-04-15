@@ -4,6 +4,7 @@ import tkinter as tk
 from src.utils.db_inventory_manager import DBInventoryManager
 from tkinter import messagebox
 from tkcalendar import DateEntry
+from src.utils.logger import log_user_action, log_database_operation, log_error
 
 class Inventory:
     def __init__(self, parent):
@@ -11,6 +12,7 @@ class Inventory:
         self.db_manager = DBInventoryManager()
         self.create_widgets()
         self.retrieve_inventory()
+        log_user_action("Opened Inventory Management", "Inventory")
 
     def create_widgets(self):
         # Main frame for inventory
@@ -197,7 +199,11 @@ class Inventory:
         for row in filtered_data:
             self.tree.insert('', ctk.END, values=row)
         
-        print(f"Found {len(filtered_data)} items matching '{search_term}', sorted by '{sort_by}'")
+        # Log search/filter action
+        if search_term:
+            log_user_action(f"Searched inventory: '{search_term}'", "Inventory", f"Found {len(filtered_data)} results")
+        if event:  # Only log sort when it's a user action, not initial load
+            log_user_action(f"Sorted inventory by {sort_by}", "Inventory")
 
     # show data to treeview
     def retrieve_inventory(self):
@@ -213,9 +219,11 @@ class Inventory:
         for row in data:
             self.tree.insert('', ctk.END, values=row)
         
-        print(f"Loaded {len(data)} inventory items")
+        log_database_operation("Retrieved inventory data", "inventory", f"Loaded {len(data)} items")
 
     def add_new_stock(self):
+        log_user_action("Opened Add New Item dialog", "Inventory")
+        
         # Create dialog for adding new item
         dialog = tk.Toplevel(self.parent)
         dialog.title("Add New Item")
@@ -294,11 +302,15 @@ class Inventory:
             if name and qty and unit_cost and price and exp_date:
                 try:
                     self.db_manager.add_product(name, product_type, int(qty), float(unit_cost), float(price), medicine_type, exp_date)
+                    log_user_action("Added new inventory item", "Inventory", f"Name: {name}, Qty: {qty}, Price: {price}")
+                    log_database_operation("INSERT", "inventory", f"Added item: {name}")
                     self.retrieve_inventory()
                     dialog.destroy()
-                except ValueError:
+                except ValueError as e:
+                    log_error("Failed to add item - invalid input", "Inventory", f"Error: {str(e)}")
                     messagebox.showerror("Error", "Quantity and Unit Cost must be numbers, Price must be a number")
             else:
+                log_error("Failed to add item - missing fields", "Inventory", "Missing required fields")
                 messagebox.showerror("Error", "All fields are required")
         
         # Buttons
@@ -329,6 +341,7 @@ class Inventory:
     def update_item(self):
         selected_item = self.tree.selection()
         if not selected_item:
+            log_user_action("Attempted update without selection", "Inventory", "No item selected")
             messagebox.showwarning("Warning", "Please select an item to update")
             return
         
@@ -341,6 +354,8 @@ class Inventory:
         current_price = item_data[5]
         current_medicine_type = item_data[6]
         current_exp_date = item_data[7]
+        
+        log_user_action("Opened Update Item dialog", "Inventory", f"Item: {current_name}")
         
         # Create dialog for updating item
         dialog = tk.Toplevel(self.parent)
@@ -423,11 +438,15 @@ class Inventory:
             if name and qty and unit_cost and price and exp_date:
                 try:
                     self.db_manager.update_inventory(name, int(qty), float(unit_cost), float(price), exp_date, product_type, medicine_type)
+                    log_user_action("Updated inventory item", "Inventory", f"Name: {name}, Qty: {qty}, Price: {price}")
+                    log_database_operation("UPDATE", "inventory", f"Updated item: {name}")
                     self.retrieve_inventory()
                     dialog.destroy()
-                except ValueError:
+                except ValueError as e:
+                    log_error("Failed to update item - invalid input", "Inventory", f"Error: {str(e)}")
                     messagebox.showerror("Error", "Quantity and Unit Cost must be numbers, Price must be a number")
             else:
+                log_error("Failed to update item - missing fields", "Inventory", "Missing required fields")
                 messagebox.showerror("Error", "All fields are required")
         
         # Initialize medicine type options based on current product type
@@ -446,6 +465,7 @@ class Inventory:
     def delete_item(self):
         selected_item = self.tree.selection()
         if not selected_item:
+            log_user_action("Attempted delete without selection", "Inventory", "No item selected")
             messagebox.showwarning("Warning", "Please select an item to delete")
             return
         
@@ -457,7 +477,10 @@ class Inventory:
         result = messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete '{item_name}'?")
         if result:
             if self.db_manager.delete_item(item_id):
+                log_user_action("Deleted inventory item", "Inventory", f"Item: {item_name}")
+                log_database_operation("DELETE", "inventory", f"Deleted item: {item_name}")
                 self.retrieve_inventory()
                 messagebox.showinfo("Success", "Item deleted successfully")
             else:
+                log_error("Failed to delete item", "Inventory", f"Item: {item_name}")
                 messagebox.showerror("Error", "Failed to delete item")

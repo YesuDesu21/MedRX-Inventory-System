@@ -1,9 +1,11 @@
 import customtkinter as ctk
+from src.utils.logger import log_user_action
 
 class Settings:
     def __init__(self, parent):
         self.parent = parent
         self.setting_widget()
+        log_user_action("Opened Settings", "Settings")
     
     def setting_widget(self):
         self.setting_frame = ctk.CTkFrame(self.parent)

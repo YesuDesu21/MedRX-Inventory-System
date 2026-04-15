@@ -6,3 +6,5 @@ google-auth
 customtkinter
 python-dotenv
 tkcalendar
+matplotlib
+numpy

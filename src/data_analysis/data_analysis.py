@@ -34,7 +34,7 @@ class DataAnalysis:
     # example bar graph of top 10 bought products
     def frequently_bought_products(self):
         """Sales by N Products bought today"""
-        frequently_bought = self.transactions_df['item_name'].value_counts().head(10)
+        frequently_bought = self.transactions_df['product_name'].value_counts().head(10)
         return frequently_bought
 
     def priority_expiration(self):
@@ -61,7 +61,13 @@ class DataAnalysis:
                 'unit_cost', 'price', 'medicine_type', 'expiration_date',
                 'date_added', 'updated_date', 'item_name_duplicate', 'item_id'
             ]
-            return pd.DataFrame(data, columns=columns)
+            df = pd.DataFrame(data, columns=columns)
+            
+            # Convert expiration_date to datetime
+            if not df.empty and 'expiration_date' in df.columns:
+                df['expiration_date'] = pd.to_datetime(df['expiration_date'])
+            
+            return df
         except Exception as e:
             print(f"Error getting inventory info: {e}")
             return pd.DataFrame()
@@ -76,22 +82,19 @@ class DataAnalysis:
         Returns: pandas DataFrame with transaction information
         """
         try:
-            data = self.transactions_manager.get_processed_transactions()
+            data = self.transactions_manager.get_transactions(search_term, date_from, date_to)
             columns = [
-                'transaction_id','total_price','date_processed','user_id'
+                'transaction_id', 'product_name', 'quantity_bought', 'unit_price',
+                'total_price', 'date_processed', 'transaction_item_id'
             ]
-            return pd.DataFrame(data, columns=columns)
+            df = pd.DataFrame(data, columns=columns)
+            
+            # Convert date_processed to datetime
+            if not df.empty and 'date_processed' in df.columns:
+                df['date_processed'] = pd.to_datetime(df['date_processed'])
+            
+            return df
         except Exception as e:
             print(f"Error getting transaction data: {e}")
             return pd.DataFrame()
-
-if __name__ == "__main__":
-    data_analysis = DataAnalysis()
-    # print(data_analysis.get_sales_today())
-    # print(data_analysis.products_bought_today())
-    # print(data_analysis.priority_expiration())
-    # print(data_analysis.priority_products())
-    # print(data_analysis.get_inventory_info())
-    # print(data_analysis.get_transaction_info())
-    print(data_analysis.sales_graph_data())
     

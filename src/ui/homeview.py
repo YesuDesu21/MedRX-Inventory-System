@@ -6,6 +6,7 @@ from src.ui.inventory import Inventory
 from src.ui.transaction import Transaction
 from src.ui.logs import Logs
 from src.ui.settings import Settings
+from src.utils.logger import log_user_action, log_system_event
 
 class HomeView:
 
@@ -78,6 +79,10 @@ class HomeView:
 
     def switch_view(self, view):
         #view = action
+        
+        # Log navigation action
+        if view != "Logout":
+            log_user_action(f"Navigated to {view}", "Navigation")
 
         for widget in self.main_container.winfo_children():
             widget.destroy()
@@ -93,6 +98,10 @@ class HomeView:
                 self.current_view = self.create_logs_view()
             case "Settings":
                 self.current_view = self.create_settings_view()
+            case "Logout":
+                log_user_action("User logged out", "Navigation")
+                if self.on_logout:
+                    self.on_logout()
 
     def sidebar(self):
         sidebar_frame = ctk.CTkFrame(self.root, width=200, corner_radius=0)
@@ -124,9 +133,13 @@ class HomeView:
         pass
     
 
-    def __init__(self, root):
+    def __init__(self, root, on_logout=None):
         self.root = root
         self.current_view = None
+        self.on_logout = on_logout
+
+        # Log application startup
+        log_system_event("MedRX Inventory System started")
 
         # Main frames
         self.header()
