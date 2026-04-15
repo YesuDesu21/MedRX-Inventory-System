@@ -3,6 +3,7 @@ import tkinter.ttk as ttk
 import tkinter as tk
 from src.utils.db_inventory_manager import DBInventoryManager
 from tkinter import messagebox
+from tkcalendar import DateEntry
 
 class Inventory:
     def __init__(self, parent):
@@ -278,7 +279,7 @@ class Inventory:
         
         # Expiration Date field
         tk.Label(dialog, text="Expiration Date:", bg='white', font=label_font).grid(row=6, column=0, padx=10, pady=8, sticky='w')
-        exp_date_entry = tk.Entry(dialog, width=20, font=entry_font)
+        exp_date_entry = DateEntry(dialog, width=12, background='darkblue', foreground='white', borderwidth=2, date_pattern='yyyy-mm-dd')
         exp_date_entry.grid(row=6, column=1, sticky='ew', padx=10, pady=8)
         
         def save_item():
@@ -405,7 +406,8 @@ class Inventory:
         price_entry.grid(row=5, column=1, sticky='ew', padx=10, pady=8)
         
         tk.Label(dialog, text="Expiration Date:", bg='white', font=label_font).grid(row=6, column=0, padx=10, pady=8, sticky='w')
-        exp_date_entry = tk.Entry(dialog, width=20, font=entry_font)
+        exp_date_entry = DateEntry(dialog, width=12, background='darkblue', foreground='white', borderwidth=2, date_pattern='yyyy-mm-dd')
+        exp_date_entry.grid(row=6, column=1, sticky='ew', padx=10, pady=8)
         exp_date_entry.insert(0, current_exp_date)
         exp_date_entry.grid(row=6, column=1, sticky='ew', padx=10, pady=8)
         

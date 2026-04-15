@@ -365,6 +365,7 @@ class AddTransactionModal:
 
         ctk.CTkButton(selected_buttons_frame, text="Remove Item", command=self.remove_selected_item, font=ctk.CTkFont(size=12), width=120, height=32).pack(side='left', padx=5)
         ctk.CTkButton(selected_buttons_frame, text="Edit Quantity", command=self.edit_item_quantity, font=ctk.CTkFont(size=12), width=120, height=32).pack(side='left', padx=5)
+        ctk.CTkButton(selected_buttons_frame, text="Save", command=self.save_transaction, font=ctk.CTkFont(size=12), width=120, height=32).pack(side='left', padx=5)
 
         # Total and action buttons
         bottom_frame = ctk.CTkFrame(main_frame)
@@ -482,7 +483,7 @@ class AddTransactionModal:
                 item_id, item_name, quantity, f"₱{unit_price:.2f}", f"₱{item_total:.2f}"
             ))
         
-        self.total_label.config(text=f"Total: ₱{total:.2f}")
+        self.total_label.configure(text=f"Total: ₱{total:.2f}")
 
     def save_transaction(self):
         """Save the transaction"""
