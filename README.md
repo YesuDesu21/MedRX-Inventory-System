@@ -66,7 +66,7 @@ MedRX-Inventory-System/
 └── requirements.txt # Python dependencies
 ```
 
-![Flow Diagram](docs/flow_diagram.png)
+![Flow Diagram](/docs/flow_diagram.png)
 
 <h2>7. Testing</h2>
 How to run the test suite (e.g., pytest or jest).
