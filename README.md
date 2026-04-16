@@ -49,6 +49,7 @@ Guidelines: How can others help? (Link to CONTRIBUTING.md if it’s long).
 
 File Structure:
 
+```
 MedRX-Inventory-System/
 ├── assets/          # Icons, images, and UI resources
 ├── cloud/           # Cloud integration logic (Supabase)
@@ -63,6 +64,9 @@ MedRX-Inventory-System/
 ├── main.py          # Application entry point
 ├── README.md        # Project overview and documentation
 └── requirements.txt # Python dependencies
+```
+
+![Flow Diagram](docs/flow_diagram.png)
 
 <h2>7. Testing</h2>
 How to run the test suite (e.g., pytest or jest).
@@ -73,3 +77,6 @@ Mention the types of tests included (Unit, Integration, E2E).
 License: State the license (MIT, Apache 2.0, etc.).
 
 Linkedin: https://www.linkedin.com/in/feil-jasper-doria-b4a3a8318/
+
+<h2>9. Docs</h2>
+https://docs.google.com/document/d/130f9qzljseilO18wmqOkCBMm38OBdINmIgFiVlDN94Y/edit?tab=t.0
