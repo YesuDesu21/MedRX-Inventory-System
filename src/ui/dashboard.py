@@ -1,10 +1,9 @@
 import customtkinter as ctk
 import pandas as pd
-import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import timedelta
 from src.data_analysis.data_analysis import DataAnalysis
 from src.utils.logger import log_user_action
 """

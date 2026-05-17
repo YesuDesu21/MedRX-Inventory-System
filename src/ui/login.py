@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from PIL import ImageTk, Image, ImageDraw
+from PIL import Image
 import hashlib
 from src.utils.logger import log_user_action, log_system_event
 from src.ui.register import Register
@@ -40,7 +40,7 @@ class Login:
             widget.destroy()
         
         # Set window properties for login - full screen
-        self.root.title("MedRX Inventory System - Login")
+        # self.root.title("MedRX Inventory System - Login")
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         self.root.geometry(f"{screen_width}x{screen_height}+0+0")
@@ -80,6 +80,7 @@ class Login:
             
             # Create rounded corners
             mask = Image.new('L', (size, size), 0)
+            
             from PIL import ImageDraw
             draw = ImageDraw.Draw(mask)
             draw.rounded_rectangle([(0, 0), (size, size)], radius=80, fill=255)

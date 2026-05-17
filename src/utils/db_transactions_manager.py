@@ -1,5 +1,5 @@
 from .database_connector import create_connection, create_cursor, sheets_connection, sheet_id
-from .sync_database import SyncManager
+from cloud.gsheet.sync_database import SyncManager
 
 class DBTransactionsManager:
     def __init__(self):

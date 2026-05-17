@@ -6,7 +6,9 @@ Needed to add:
 - cloud database
 - email verification
 - Dynamic GSheet link import (new gsheet link -> import data to settings config)
- 
+ - Should sync to cloud database every 10/20 minutes if available. But always save data on local storage
+ - should sync to cloud database when closing app, and retrieving if new on app launch
+
  <h1>MedRX Inventory System</h1>
  Developed and Architectured by: YesuDesu21 (Feil Jasper Doria)
 
@@ -52,7 +54,7 @@ File Structure:
 ```
 MedRX-Inventory-System/
 ├── assets/          # Icons, images, and UI resources
-├── cloud/           # Cloud integration logic (Supabase)
+├── cloud/           # Cloud integration logic (Supabase & gsheet)
 ├── data/            # Local SQLite database files
 ├── docs/            # Project documentation
 ├── logs/            # Application runtime logs
@@ -66,7 +68,7 @@ MedRX-Inventory-System/
 └── requirements.txt # Python dependencies
 ```
 
-![Flow Diagram](/docs/flow_diagram.png)
+![Flow Diagram](docs/flow_diagram.png)
 
 <h2>7. Testing</h2>
 How to run the test suite (e.g., pytest or jest).

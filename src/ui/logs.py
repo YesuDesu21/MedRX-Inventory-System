@@ -1,6 +1,4 @@
 import customtkinter as ctk
-import tkinter.ttk as ttk
-from datetime import datetime
 from src.utils.logger import get_recent_logs
 
 class Logs:

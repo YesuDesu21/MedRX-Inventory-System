@@ -2,7 +2,6 @@ import customtkinter as ctk
 import tkinter.ttk as ttk
 import tkinter as tk
 from tkinter import messagebox
-from datetime import datetime
 from src.utils.db_transactions_manager import DBTransactionsManager
 from src.utils.logger import log_user_action, log_database_operation, log_error
 

@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from PIL import ImageTk, Image, ImageDraw
+from PIL import Image, ImageDraw
 
 from src.ui.dashboard import Dashboard
 from src.ui.inventory import Inventory

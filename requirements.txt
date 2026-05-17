@@ -1,10 +1,29 @@
-PIL
-watchdog
-mysql-connector-python
-gspread
-google-auth
-customtkinter
-python-dotenv
-tkcalendar
-matplotlib
-numpy
+# Core dependencies
+Pillow==12.1.0
+watchdog==6.0.0
+mysql-connector-python==9.6.0
+python-dotenv==1.2.2
+
+# GUI dependencies
+customtkinter==5.2.2
+tkcalendar==1.6.1
+
+# Google/Spreadsheet dependencies
+gspread==6.2.1
+google-auth==2.49.1
+
+# Data analysis/visualization
+matplotlib==3.10.8
+numpy==2.4.3
+
+# Supabase and related dependencies
+supabase==0.7.1
+postgrest-py==0.10.6
+gotrue==0.5.4
+realtime==0.0.5
+storage3==0.3.6
+httpx==0.23.3
+pydantic==1.10.26
+PyJWT==2.12.1
+websockets==10.4
+yarl==1.23.0
